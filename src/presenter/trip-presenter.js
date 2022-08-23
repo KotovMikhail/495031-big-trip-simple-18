@@ -4,7 +4,6 @@ import PointsListView from '../view/points-list-view.js';
 import PointItemView from '../view/point-item-view.js';
 import FormCreateView from '../view/form-create-view.js';
 import FormEditView from '../view/form-edit-view.js';
-import LoadingMsgView from '../view/loading-msg-view.js';
 import ListEmptyViewView from '../view/list-empty-view.js';
 
 import { render, RenderPosition } from '../render.js';
@@ -39,10 +38,10 @@ export default class TripPresenter {
 
       for (let i = 0; i < this.points.length; i++) {
 
-        const offers = this.offers.filter((item) =>
-          this.points[i].offers.some((offerId) => offerId === item.id));
+        //const offers = this.offers.filter((item) =>
+        //  this.points[i].offers.some((offerId) => offerId === item.id));
 
-        const destinations = this.destinations.find((item) => item.id === this.points[i].destination);
+        //const destinations = this.destinations.find((item) => item.id === this.points[i].destination);
 
         this.#renderPoint(this.points[i]);
       }
@@ -52,7 +51,7 @@ export default class TripPresenter {
     //render(this.#formEditComponent, this.tripSortComponent.getElement().lastElementChild, RenderPosition.AFTERBEGIN);
   };
 
-  #renderPoint = (point, offers, destinations) => {
+  #renderPoint = (point) => {
     const pointItemComponent = new PointItemView(point);
     const formEditComponent = new FormEditView();
     const eventElement = pointItemComponent.element.querySelector('.event');
