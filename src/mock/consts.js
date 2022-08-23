@@ -7,7 +7,7 @@ const MAX_OFFER_PRICE = 150;
 //const MIN_ID = 1;
 //const MAX_ID = 10;
 
-const MODEL_LENGTH = 8;
+const MODEL_LENGTH = 7;
 
 
 const POINTS_TYPE = [
