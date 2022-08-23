@@ -4,8 +4,8 @@ const MAX_PRICE = 10000;
 const MIN_OFFER_PRICE = 30;
 const MAX_OFFER_PRICE = 150;
 
-const MIN_ID = 1;
-const MAX_ID = 10;
+//const MIN_ID = 1;
+//const MAX_ID = 10;
 
 const MODEL_LENGTH = 8;
 
@@ -94,7 +94,5 @@ export {
   MAX_OFFER_PRICE,
   OFFERS_TITLE, CITY_NAMES,
   DESCRIPTIONS,
-  MIN_ID,
-  MAX_ID,
   MODEL_LENGTH
 };

@@ -2,7 +2,7 @@ import { createElement } from '../render.js';
 import { humanizeDateToTime, humanizeDateToShortDate } from '../utils.js';
 
 
-const createPointItemTemplate = (point, offer, destination) => {
+const createPointItemTemplate = (point) => {
   const { basePrice, dateFrom, dateTo, type } = point;
   const dateFromToTime = humanizeDateToTime(dateFrom);
   const dateToToTime = humanizeDateToTime(dateTo);

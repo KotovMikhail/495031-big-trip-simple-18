@@ -1,5 +1,4 @@
 import dayjs from 'dayjs';
-import { MIN_ID, MAX_ID } from './mock/consts.js';
 
 
 const getRandomInteger = (a = 0, b = 1) => {

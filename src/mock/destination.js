@@ -36,10 +36,4 @@ const getDestinationData = () => (
   }
 );
 
-
-
-
-  
-
-
 export {getDestinationData};
