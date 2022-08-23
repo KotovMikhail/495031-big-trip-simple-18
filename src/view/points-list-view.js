@@ -1,15 +1,14 @@
+import { createElement } from '../render.js';
 
-import {createElement} from '../render.js';
-
-const createLoadingMsgTemplate = () => (`
-  <p class="trip-events__msg">Loading...</p>
+const createPointsListTemplate = () => (`
+  <ul class="trip-events__list"></ul>
 `);
 
-export default class LoadingMsgView {
+export default class PointsListView {
   #element = null;
 
   get template() {
-    return createLoadingMsgTemplate();
+    return createPointsListTemplate();
   }
 
   get element() {
