@@ -1,43 +1,100 @@
-import tripContainerView from '../view/trip-container-view.js';
+
 import FilterTripView from '../view/filter-trip-view.js';
-import SortListView from '../view/sort-list-view.js';
-import SortItemView from '../view/sort-item-view.js';
+import PointsListView from '../view/points-list-view.js';
+import PointItemView from '../view/point-item-view.js';
 import FormCreateView from '../view/form-create-view.js';
 import FormEditView from '../view/form-edit-view.js';
-import OffersEventView from '../view/offers-event-view.js';
-import DestinationEventView from '../view/destinations-event-view.js';
-import {RenderPosition} from '../render';
+import LoadingMsgView from '../view/loading-msg-view.js';
+import ListEmptyViewView from '../view/list-empty-view.js';
 
-import { render } from '../render.js';
+import { render, RenderPosition } from '../render.js';
 
 export default class TripPresenter {
-  mainComponent = new tripContainerView();
-  tripSortFilterComponent = new FilterTripView();
-  tripSortComponent = new SortListView();
-  sortItemComponent = new SortItemView();
-  formCreateComponent = new FormCreateView();
-  formEditComponent = new FormEditView();
+  #tripMainContainer = null;
+  #pointModel = null;
+  #offerModel = null;
+  #destinationModel = null;
 
-  init = (tripMainContainer) => {
-    this.tripMainContainer = tripMainContainer;
+  #filterTripComponent = new FilterTripView();
+  #pointsListComponent = new PointsListView();
+  #formCreatComponent = new FormCreateView();
+  #formEditComponent = new FormEditView();
+  #listEmptyComponent = new ListEmptyViewView();
 
-    render(this.mainComponent, this.tripMainContainer);
-    render(this.tripSortFilterComponent, this.mainComponent.getElement(), RenderPosition.BEFOREEND);
-    render(this.tripSortComponent, this.mainComponent.getElement(), RenderPosition.BEFOREEND);
+  init = (tripEventsElement, pointModel, offerModel, destinationModel) => {
+    this.#tripMainContainer = tripEventsElement;
+    this.#pointModel = pointModel;
+    this.#offerModel = offerModel;
+    this.#destinationModel = destinationModel;
 
-    for (let i = 0; i < 3; i++) {
-      render(new SortItemView(), this.tripSortComponent.getElement());
+    this.points = [...this.#pointModel.points];
+    this.offers = [...this.#offerModel.offers];
+    this.destinations = [...this.#destinationModel.destinations];
+
+    if (!this.points.length) {
+      this.#tripMainContainer.append(this.#listEmptyComponent.element);
+    } else {
+      render(this.#pointsListComponent, this.#tripMainContainer);
+      render(this.#filterTripComponent, this.#tripMainContainer, RenderPosition.AFTERBEGIN);
+
+      for (let i = 0; i < this.points.length; i++) {
+
+        const offers = this.offers.filter((item) =>
+          this.points[i].offers.some((offerId) => offerId === item.id));
+
+        const destinations = this.destinations.find((item) => item.id === this.points[i].destination);
+
+        this.#renderPoint(this.points[i]);
+      }
     }
 
-    render(this.formCreateComponent, this.tripSortComponent.getElement().firstElementChild, RenderPosition.AFTERBEGIN);
-    render(this.formEditComponent, this.tripSortComponent.getElement().lastElementChild, RenderPosition.AFTERBEGIN);
-
-    render(new OffersEventView(), this.formCreateComponent.getElement().querySelector('.event__details'), RenderPosition.AFTERBEGIN);
-    render(new DestinationEventView(), this.formCreateComponent.getElement().querySelector('.event__details'), RenderPosition.BEFOREEND);
-
-    render(new OffersEventView(), this.formEditComponent.getElement().querySelector('.event__details'), RenderPosition.AFTERBEGIN);
-    render(new DestinationEventView(), this.formEditComponent.getElement().querySelector('.event__details'), RenderPosition.BEFOREEND);
-
+    //render(this.#formCreateComponent, this.#pointsListComponent.element.firstElementChild, RenderPosition.AFTERBEGIN);
+    //render(this.#formEditComponent, this.tripSortComponent.getElement().lastElementChild, RenderPosition.AFTERBEGIN);
   };
 
+  #renderPoint = (point, offers, destinations) => {
+    const pointItemComponent = new PointItemView(point);
+    const formEditComponent = new FormEditView();
+    const eventElement = pointItemComponent.element.querySelector('.event');
+    const eventRollupBtnElement = formEditComponent.element.querySelector('.event__rollup-btn');
+
+    const replacePointToForm = () => {
+      pointItemComponent.element.replaceChild(eventElement, formEditComponent.element);
+    };
+
+    const replaceFormToPoint = () => {
+      pointItemComponent.element.replaceChild(formEditComponent.element, eventElement);
+    };
+
+    const onEscKeyDown = (evt) => {
+      if (evt.key === 'Escape' || evt.key === 'Esc') {
+        evt.preventDefault();
+        replacePointToForm();
+        document.removeEventListener('keydown', onEscKeyDown);
+      }
+    };
+
+    eventRollupBtnElement.addEventListener('click', (evt) => {
+      evt.preventDefault();
+      replacePointToForm();
+      document.removeEventListener('keydown', onEscKeyDown);
+    });
+
+
+    pointItemComponent.element.querySelector('.event__rollup-btn').addEventListener('click', (evt) => {
+      evt.preventDefault();
+      replaceFormToPoint();
+      document.addEventListener('keydown', onEscKeyDown);
+    });
+
+
+    formEditComponent.element.addEventListener('submit', (evt) => {
+      evt.preventDefault();
+      replacePointToForm();
+      document.removeEventListener('keydown', onEscKeyDown);
+    });
+
+
+    render(pointItemComponent, this.#pointsListComponent.element);
+  };
 }
