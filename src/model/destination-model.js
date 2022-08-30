@@ -1,8 +1,7 @@
-import { getDestinationData } from '../mock/destination.js';
-import { MODEL_LENGTH } from '../mock/consts.js';
+import { getDestinationData } from '../mock/destinations.js';
 
 export default class DestinationModel {
-  #destinations = Array.from({ length: MODEL_LENGTH }, getDestinationData);
+  #destinations = getDestinationData();
 
   get destinations() {
     return this.#destinations;

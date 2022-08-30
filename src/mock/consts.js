@@ -4,11 +4,9 @@ const MAX_PRICE = 10000;
 const MIN_OFFER_PRICE = 30;
 const MAX_OFFER_PRICE = 150;
 
-//const MIN_ID = 1;
-//const MAX_ID = 10;
+const ID = 10;
 
-const MODEL_LENGTH = 8;
-
+const MODEL_LENGTH = 11;
 
 const POINTS_TYPE = [
   'Taxi',
@@ -69,7 +67,7 @@ const CITY_NAMES = [
   'Paris',
   'Vladivostok',
   'Saratov',
-  'Vashingtno',
+  'Washington',
 ];
 
 const DESCRIPTIONS = [
@@ -94,5 +92,6 @@ export {
   MAX_OFFER_PRICE,
   OFFERS_TITLE, CITY_NAMES,
   DESCRIPTIONS,
-  MODEL_LENGTH
+  MODEL_LENGTH,
+  ID
 };

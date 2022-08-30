@@ -2,8 +2,8 @@
 import FilterTripView from '../view/filter-trip-view.js';
 import PointsListView from '../view/points-list-view.js';
 import PointItemView from '../view/point-item-view.js';
-import FormCreateView from '../view/form-create-view.js';
 import FormEditView from '../view/form-edit-view.js';
+import { getPointsByOfferType } from '../utils.js';
 import ListEmptyViewView from '../view/list-empty-view.js';
 
 import { render, RenderPosition } from '../render.js';
@@ -16,8 +16,6 @@ export default class TripPresenter {
 
   #filterTripComponent = new FilterTripView();
   #pointsListComponent = new PointsListView();
-  #formCreatComponent = new FormCreateView();
-  #formEditComponent = new FormEditView();
   #listEmptyComponent = new ListEmptyViewView();
 
   init = (tripEventsElement, pointModel, offerModel, destinationModel) => {
@@ -37,23 +35,16 @@ export default class TripPresenter {
       render(this.#filterTripComponent, this.#tripMainContainer, RenderPosition.AFTERBEGIN);
 
       for (let i = 0; i < this.points.length; i++) {
-
-        //const offers = this.offers.filter((item) =>
-        //  this.points[i].offers.some((offerId) => offerId === item.id));
-
-        //const destinations = this.destinations.find((item) => item.id === this.points[i].destination);
-
-        this.#renderPoint(this.points[i]);
+        const pointsByOfferType = getPointsByOfferType(this.points[i], this.offers);
+        this.#renderPoint(this.points[i], this.offers[i], this.destinations, pointsByOfferType);
       }
     }
 
-    //render(this.#formCreateComponent, this.#pointsListComponent.element.firstElementChild, RenderPosition.AFTERBEGIN);
-    //render(this.#formEditComponent, this.tripSortComponent.getElement().lastElementChild, RenderPosition.AFTERBEGIN);
   };
 
-  #renderPoint = (point) => {
-    const pointItemComponent = new PointItemView(point);
-    const formEditComponent = new FormEditView();
+  #renderPoint = (points, offers, destinations, pointsByOfferType) => {
+    const pointItemComponent = new PointItemView(points, offers, destinations);
+    const formEditComponent = new FormEditView(points, pointsByOfferType, destinations);
     const eventElement = pointItemComponent.element.querySelector('.event');
     const eventRollupBtnElement = formEditComponent.element.querySelector('.event__rollup-btn');
 

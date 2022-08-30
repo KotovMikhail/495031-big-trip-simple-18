@@ -1,7 +1,5 @@
-import { getRandomInteger, generatorIDs } from '../utils.js';
+import { getRandomInteger } from '../utils.js';
 import { POINTS_TYPE, OFFERS_TITLE, MIN_OFFER_PRICE, MAX_OFFER_PRICE } from './consts.js';
-
-const generateID = generatorIDs();
 
 const generateOfferType = () => {
   const randomIndex = getRandomInteger(0, POINTS_TYPE.length - 1);
@@ -18,14 +16,14 @@ const generateOfferTitle = () => {
 const generateOfferPrice = () => getRandomInteger(MIN_OFFER_PRICE, MAX_OFFER_PRICE);
 
 
-const generateOffers = () => {
+const generateOffers = (id) => {
   const randomIndex = getRandomInteger(0, OFFERS_TITLE.length - 1);
 
   const arr = [];
 
   for (let i = 0; i < randomIndex; i++) {
     const obj = {
-      id: generateID(),
+      id: id,
       title: generateOfferTitle(),
       price: generateOfferPrice(),
     };
@@ -37,10 +35,18 @@ const generateOffers = () => {
 };
 
 
-const getOfferData = () => ({
+const generateOffersData = (id) => ({
   type: generateOfferType(),
-  offers: generateOffers(),
+  offers: generateOffers(id),
 });
 
-export { getOfferData };
+export const getOffersData = () => {
+  const points = [];
+
+  for (let i = 0; i < 10; i++) {
+    points.push(generateOffersData(i));
+  }
+
+  return points;
+};
 
