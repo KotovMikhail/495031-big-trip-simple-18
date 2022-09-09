@@ -1,8 +1,7 @@
-import { getOfferData } from '../mock/offer.js';
-import { MODEL_LENGTH } from '../mock/consts.js';
+import { getOffersData } from '../mock/offers.js';
 
 export default class OfferModel {
-  #offers = Array.from({ length: MODEL_LENGTH }, getOfferData);
+  #offers = getOffersData();
 
   get offers() {
     return this.#offers;

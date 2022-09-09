@@ -4,11 +4,9 @@ const MAX_PRICE = 10000;
 const MIN_OFFER_PRICE = 30;
 const MAX_OFFER_PRICE = 150;
 
-//const MIN_ID = 1;
-//const MAX_ID = 10;
+const ID = 10;
 
-const MODEL_LENGTH = 8;
-
+const MODEL_LENGTH = 11;
 
 const POINTS_TYPE = [
   'Taxi',
@@ -19,6 +17,7 @@ const POINTS_TYPE = [
   'Flight',
   'Check-in',
   'Sightseeing',
+  'Restaurant',
   'Restaurant',
 ];
 
@@ -45,6 +44,7 @@ const DATE_FROM = [
   '2019-05-16T03:55:56.845Z',
   '2019-07-11T06:55:56.845Z',
   '2019-08-10T19:55:56.845Z',
+  '2019-08-10T19:55:56.845Z',
 ];
 
 const DATE_TO = [
@@ -56,6 +56,7 @@ const DATE_TO = [
   '2019-07-15T02:55:56.845Z',
   '2019-05-16T03:55:56.845Z',
   '2019-07-11T06:55:56.845Z',
+  '2019-08-10T19:55:56.845Z',
   '2019-08-10T19:55:56.845Z',
 ];
 
@@ -69,7 +70,7 @@ const CITY_NAMES = [
   'Paris',
   'Vladivostok',
   'Saratov',
-  'Vashingtno',
+  'Washington',
 ];
 
 const DESCRIPTIONS = [
@@ -82,7 +83,28 @@ const DESCRIPTIONS = [
   'Ad aperiam ex ipsa ipsum iure labore molestias necessitatibus sed soluta.',
   'Ad alias aliquam aliquid amet consequatur, doloremque dolores eius excepturi facere fuga harum impedit officia officiis perferendis provident quae quam ratione repellat reprehenderit repudiandae saepe sed, sequi tempore ut velit vero vitae, voluptatum!',
   'Ad, adipisci animi aspernatur dolore dolores enim, error est fugiat id maxime quis quos tempora vitae? Alias earum est facilis hic ipsa iusto omnis quae, quas. Accusamus accusantium consectetur corporis est ex facilis, ipsam, laudantium molestias nostrum officia, quia quisquam sit veniam.',
+  'Ad, adipisci animi aspernatur dolore dolores enim, error est fugiat id maxime quis quos tempora vitae? Alias earum est facilis hic ipsa iusto omnis quae, quas. Accusamus accusantium consectetur corporis est ex facilis, ipsam, laudantium molestias nostrum officia, quia quisquam sit veniam.',
 ];
+
+const FilterType = {
+  DAY: 'day',
+  EVENT: 'event',
+  TIME: 'time',
+  PRICE: 'price',
+  OFFERS: 'offer'
+};
+
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING',
+};
+
+const SortType = {
+  DEFAULT: 'default',
+  DAY: 'day',
+  PRICE: 'price',
+};
+
 
 export {
   POINTS_TYPE,
@@ -94,5 +116,9 @@ export {
   MAX_OFFER_PRICE,
   OFFERS_TITLE, CITY_NAMES,
   DESCRIPTIONS,
-  MODEL_LENGTH
+  MODEL_LENGTH,
+  ID,
+  FilterType,
+  Mode,
+  SortType
 };

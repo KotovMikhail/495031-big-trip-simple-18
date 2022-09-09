@@ -1,99 +1,141 @@
-
-import FilterTripView from '../view/filter-trip-view.js';
+import { remove, render, RenderPosition } from '../framework/render.js';
+import { generateFilterSort } from '../mock/filters.js';
+import { getPointByOfferType, getSelectedOffers, getDestinations, sortByDay, sortByPrice } from '../utils/common.js';
+import FilterSortView from '../view/filter-sort-view.js';
 import PointsListView from '../view/points-list-view.js';
-import PointItemView from '../view/point-item-view.js';
-import FormCreateView from '../view/form-create-view.js';
-import FormEditView from '../view/form-edit-view.js';
 import ListEmptyViewView from '../view/list-empty-view.js';
-
-import { render, RenderPosition } from '../render.js';
+import PointPresenter from './point-presenter.js';
+import { SortType } from '../mock/consts.js';
 
 export default class TripPresenter {
-  #tripMainContainer = null;
+  #tripEventsElement = null;
   #pointModel = null;
   #offerModel = null;
   #destinationModel = null;
 
-  #filterTripComponent = new FilterTripView();
+  #filters = null;
   #pointsListComponent = new PointsListView();
-  #formCreatComponent = new FormCreateView();
-  #formEditComponent = new FormEditView();
   #listEmptyComponent = new ListEmptyViewView();
+  #filterSortComponent = null;
 
-  init = (tripEventsElement, pointModel, offerModel, destinationModel) => {
-    this.#tripMainContainer = tripEventsElement;
+  #points = [];
+  #offers = [];
+  #destinations = [];
+  #sourcePoints = [];
+
+  #currentSortType = SortType.DEFAULT;
+
+  #pointPresenter = new Map();
+
+  constructor(tripEventsElement, pointModel, offerModel, destinationModel) {
+    this.#tripEventsElement = tripEventsElement;
     this.#pointModel = pointModel;
     this.#offerModel = offerModel;
     this.#destinationModel = destinationModel;
+  }
 
-    this.points = [...this.#pointModel.points];
-    this.offers = [...this.#offerModel.offers];
-    this.destinations = [...this.#destinationModel.destinations];
+  init = () => {
+    this.#points = [...this.#pointModel.points];
+    this.#offers = [...this.#offerModel.offers];
+    this.#destinations = [...this.#destinationModel.destinations];
 
-    if (!this.points.length) {
-      this.#tripMainContainer.append(this.#listEmptyComponent.element);
-    } else {
-      render(this.#pointsListComponent, this.#tripMainContainer);
-      render(this.#filterTripComponent, this.#tripMainContainer, RenderPosition.AFTERBEGIN);
+    this.#sourcePoints = [...this.#pointModel.points];
 
-      for (let i = 0; i < this.points.length; i++) {
-
-        //const offers = this.offers.filter((item) =>
-        //  this.points[i].offers.some((offerId) => offerId === item.id));
-
-        //const destinations = this.destinations.find((item) => item.id === this.points[i].destination);
-
-        this.#renderPoint(this.points[i]);
-      }
-    }
-
-    //render(this.#formCreateComponent, this.#pointsListComponent.element.firstElementChild, RenderPosition.AFTERBEGIN);
-    //render(this.#formEditComponent, this.tripSortComponent.getElement().lastElementChild, RenderPosition.AFTERBEGIN);
+    this.#renderFilterSort();
+    this.#renderPointsContainer();
+    this.#renderPointsList();
   };
 
-  #renderPoint = (point) => {
-    const pointItemComponent = new PointItemView(point);
-    const formEditComponent = new FormEditView();
-    const eventElement = pointItemComponent.element.querySelector('.event');
-    const eventRollupBtnElement = formEditComponent.element.querySelector('.event__rollup-btn');
+  #renderEmptyList = () => {
+    render(this.#listEmptyComponent, this.#tripEventsElement);
+  };
 
-    const replacePointToForm = () => {
-      pointItemComponent.element.replaceChild(eventElement, formEditComponent.element);
-    };
+  #renderPointsContainer = () => {
+    render(this.#pointsListComponent, this.#tripEventsElement);
+  };
 
-    const replaceFormToPoint = () => {
-      pointItemComponent.element.replaceChild(formEditComponent.element, eventElement);
-    };
+  #sortPointsList = (sortType) => {
+    switch (sortType) {
+      case SortType.DAY:
+        this.#points.sort(sortByDay);
+        break;
+      case SortType.PRICE:
+        this.#points.sort(sortByPrice);
+        break;
+      default:
+        this.#points = [...this.#sourcePoints];
+    }
 
-    const onEscKeyDown = (evt) => {
-      if (evt.key === 'Escape' || evt.key === 'Esc') {
-        evt.preventDefault();
-        replacePointToForm();
-        document.removeEventListener('keydown', onEscKeyDown);
+    this.#currentSortType = sortType;
+  };
+
+  #handleSortTypeChange = (sortType) => {
+
+    if (this.#currentSortType === sortType) {
+
+      if (sortType === 'price') {
+        return;
       }
-    };
 
-    eventRollupBtnElement.addEventListener('click', (evt) => {
-      evt.preventDefault();
-      replacePointToForm();
-      document.removeEventListener('keydown', onEscKeyDown);
-    });
+      this.#points = [...this.#sourcePoints];
+      this.#clearPointsList();
+      this.#renderPointsList();
 
+      return;
+    }
 
-    pointItemComponent.element.querySelector('.event__rollup-btn').addEventListener('click', (evt) => {
-      evt.preventDefault();
-      replaceFormToPoint();
-      document.addEventListener('keydown', onEscKeyDown);
-    });
+    this.#sortPointsList(sortType);
+    this.#clearPointsList();
+    this.#renderPointsList();
+  };
 
+  #renderFilterSort = () => {
+    this.#filters = generateFilterSort(this.#points);
+    this.#filterSortComponent = new FilterSortView(this.#filters);
 
-    formEditComponent.element.addEventListener('submit', (evt) => {
-      evt.preventDefault();
-      replacePointToForm();
-      document.removeEventListener('keydown', onEscKeyDown);
-    });
+    render(this.#filterSortComponent, this.#tripEventsElement, RenderPosition.BEFOREEND);
+    this.#filterSortComponent.setSortTypeChangeHandler(this.#handleSortTypeChange);
+  };
 
+  #handleModeChange = () => {
+    this.#pointPresenter.forEach((presenter) => presenter.resetView());
+  };
 
-    render(pointItemComponent, this.#pointsListComponent.element);
+  #clearPointsList = () => {
+    this.#pointPresenter.forEach((presenter) => presenter.destroy());
+    this.#pointPresenter.clear();
+  };
+
+  #renderPointItem = (points, point, offers, destinations, pointByOfferType, selectedOffers, pointByDestinationName) => {
+    const pointPresenter = new PointPresenter(this.#pointsListComponent, this.#handleModeChange);
+    pointPresenter.init(points, point, offers, destinations, pointByOfferType, selectedOffers, pointByDestinationName);
+    this.#pointPresenter.set(point.id, pointPresenter);
+  };
+
+  #renderPointsList = () => {
+    if (!this.#points.length) {
+      remove(this.#filterSortComponent);
+      remove(this.#pointsListComponent);
+      this.#renderEmptyList();
+
+      return;
+    }
+
+    for (const point of this.#points) {
+      const pointByOfferType = getPointByOfferType(point, this.#offers);
+      const selectedOffers = getSelectedOffers(point.offers, pointByOfferType.offers);
+      const pointByDestinationName = getDestinations(point, this.#destinations);
+
+      this.#renderPointItem(
+        this.#points,
+        point,
+        this.#offers,
+        this.#destinations,
+        pointByOfferType,
+        selectedOffers,
+        pointByDestinationName,
+      );
+    }
+
   };
 }

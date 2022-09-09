@@ -1,8 +1,7 @@
-import { getPointData } from '../mock/point.js';
-import { MODEL_LENGTH } from '../mock/consts.js';
+import { getPointsData } from '../mock/points.js';
 
 export default class PointModel {
-  #points = Array.from({ length: MODEL_LENGTH }, getPointData);
+  #points = getPointsData();
 
   get points() {
     return this.#points;
