@@ -1,5 +1,6 @@
-import { getRandomInteger } from '../utils.js';
+import { getRandomInteger } from '../utils/common.js';
 import { POINTS_TYPE, DATE_FROM, DATE_TO, MIN_PRICE, MAX_PRICE } from './consts.js';
+import { nanoid } from 'nanoid';
 
 const generatePointType = () => {
   const randomIndex = getRandomInteger(0, POINTS_TYPE.length - 1);
@@ -33,7 +34,7 @@ const generateOffersArrID = () => {
 
 const generatePointsData = (id) => (
   {
-    id: id,
+    id: nanoid(),
     basePrice: getRandomInteger(MIN_PRICE, MAX_PRICE),
     dateFrom: generateDateFrom(),
     dateTo: generatedateFrom(),
@@ -52,3 +53,4 @@ export const getPointsData = () => {
 
   return points;
 };
+

@@ -1,19 +1,21 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view';
+import { getUniqArray, capitalizeFirstLetter } from '../utils/common';
 
 
-const createFormEventHeaderTemplate = (points, offers, destinations) => {
+const createFormEventHeaderTemplate = (points, point, destinations, pointByOfferType, pointByDestinationName) => {
+
+  const { type } = point;
+  const { name } = pointByDestinationName;
 
   const createFormEditEventTypeListTemplate = () => {
-    if (!points.length) {
-      return '';
-    }
+    const pointTypes = getUniqArray(points);
 
-    return points
+    return pointTypes
       .map(
         (item) =>
           `<div class="event__type-item">
-              <input id="event-type-${item.type.toLowerCase()}-${item.id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${item.type.toLowerCase()}">
-              <label class="event__type-label  event__type-label--${item.type.toLowerCase()}" for="event-type-${item.type.toLowerCase()}-${item.id}">${item.type.toLowerCase()}</label>
+              <input id="event-type-${item.toLowerCase()}-${item.id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${item.toLowerCase()}">
+              <label class="event__type-label  event__type-label--${item.toLowerCase()}" for="event-type-${item.toLowerCase()}-${item.id}">${capitalizeFirstLetter(item)}</label>
             </div>
           `
       )
@@ -41,16 +43,16 @@ const createFormEventHeaderTemplate = (points, offers, destinations) => {
       <div class="event__type-list">
         <fieldset class="event__type-group">
           <legend class="visually-hidden">Event type</legend>
-          ${createFormEditEventTypeListTemplate()}
+          ${createFormEditEventTypeListTemplate(point)}
         </fieldset>
       </div>
     </div>
 
     <div class="event__field-group event__field-group--destination">
       <label class="event__label event__type-output" for="event-destination-1">
-        Flight
+        ${type}
       </label>
-      <input class="event__input event__input--destination" id="event-destination-1" type="text" name="event-destination" value="Chamonix" list="destination-list-1">
+      <input class="event__input event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${name}" list="destination-list-1">
       <datalist id="destination-list-1">
         ${createFormCitiesListTemplate()}
       </datalist>
@@ -81,9 +83,8 @@ const createFormEventHeaderTemplate = (points, offers, destinations) => {
 `);
 };
 
-const createFormOffersItems = (points, offers) => offers.map((offer) => {
-  const checked = points.offers.includes(offer.id) ? 'checked' : '';
-
+const createFormOffersItems = (points, point, destinations, pointByOfferType) => pointByOfferType.offers.map((offer) => {
+  const checked = point.offers.includes(offer.id) ? 'checked' : '';
   const { id, title, price } = offer;
 
   const offerName = title.split(' ').splice(-1)[0];
@@ -96,56 +97,96 @@ const createFormOffersItems = (points, offers) => offers.map((offer) => {
       <span class="event__offer-price">${price}</span>
     </label>
   </div>`);
-});
+}).join('');
 
 
-const createFormOffersListTemplate = (points, offers) => {
-  const isHasOffers = () => Boolean(offers.length);
+const createFormOffersListTemplate = (points, point, destinations, pointByOfferType) => {
+  const isHasOffers = () => pointByOfferType.offers.length > 0;
 
   return (`
   ${isHasOffers() ?
       `<section class="event__section  event__section--offers">
         <h3 class="event__section-title  event__section-title--offers">Offers</h3>
         <div class="event__available-offers">
-          ${createFormOffersItems(points, offers).join('')}
+          ${createFormOffersItems(points, point, destinations, pointByOfferType)}
         </div>
-        </section>` : ''
+      </section>` : ''
     }`
   );
 };
 
 
-const createFormEditTemplate = (point, offer, destination) => (`
+const createFormDestinationTemplate = (pointByDestinationName) => {
+
+  const { description } = pointByDestinationName;
+
+  const createPhotos = () => {
+    if (!pointByDestinationName.pictures.length) {
+      return '';
+    }
+
+    return pointByDestinationName.pictures
+      .map(
+        (picture) => ` <img class="event__photo" src="${picture.src}" alt="Event photo">`
+      )
+      .join('');
+  };
+
+  return (`
+  <section class="event__section  event__section--destination">
+    <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+    <p class="event__destination-description">${description}</p>
+
+    <div class="event__photos-container">
+      <div class="event__photos-tape">
+        ${createPhotos()}
+      </div>
+    </div>
+  </section>
+  
+  `);
+};
+
+const createFormEditTemplate = (points, point, destinations, pointByOfferType, pointByDestinationName) => (`
   <form class="event event--edit" action="#" method="post">
-    ${createFormEventHeaderTemplate(point, offer, destination)}
+    ${createFormEventHeaderTemplate(points, point, destinations, pointByOfferType, pointByDestinationName)}
     <section class="event__details">
-      ${createFormOffersListTemplate(point, offer, destination)}
-    </section>
+      ${createFormOffersListTemplate(points, point, destinations, pointByOfferType, pointByDestinationName)}
+      ${createFormDestinationTemplate(pointByDestinationName)}
+      </section>
   </form>
 `);
 
-export default class FormEditView {
-  #element = null;
+export default class FormEditView extends AbstractView {
+  #points = null;
+  #point = null;
+  #destinations = null;
+  #pointByOfferType = null;
+  #pointByDestinationName = null;
 
-  constructor(point, offer, destination) {
-    this.point = point;
-    this.offer = offer;
-    this.destination = destination;
+  constructor(points, point, destinations, pointByOfferType, pointByDestinationName) {
+    super();
+    this.#points = points;
+    this.#point = point;
+    this.#destinations = destinations;
+    this.#pointByOfferType = pointByOfferType;
+    this.#pointByDestinationName = pointByDestinationName;
   }
 
   get template() {
-    return createFormEditTemplate(this.point, this.offer, this.destination);
+    return createFormEditTemplate(this.#points, this.#point, this.#destinations, this.#pointByOfferType, this.#pointByDestinationName);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
+  setFormEditSubmitHandler = (callback) => {
+    this._callback.formEditSubmit = callback;
+    this.element.addEventListener('submit', this.#formEditSubmitHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formEditSubmitHandler);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formEditSubmitHandler);
+  };
 
-    return this.#element;
-  }
+  #formEditSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.formEditSubmit();
+  };
 
-  removeElement() {
-    this.#element = null;
-  }
 }
