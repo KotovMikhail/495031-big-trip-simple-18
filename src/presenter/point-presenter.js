@@ -19,13 +19,13 @@ export default class PointPresenter {
     this.#changeMode = changeMode;
   }
 
-  init = (points, point, offers, destinations, pointByOfferType, selectedOffers, pointByDestinationName) => {
+  init = (point) => {
     const prevPointEventComponent = this.#pointEventComponent;
     const prevFormEditComponent = this.#formEditComponent;
 
     this.#pointItemComponent = new PointItemView();
-    this.#pointEventComponent = new PointEventView(points, point, offers, destinations, pointByOfferType, selectedOffers, pointByDestinationName);
-    this.#formEditComponent = new FormEditView(points, point, destinations, pointByOfferType, pointByDestinationName);
+    this.#pointEventComponent = new PointEventView(point);
+    this.#formEditComponent = new FormEditView(point);
 
     render(this.#pointEventComponent, this.#pointItemComponent.element);
 
@@ -47,7 +47,6 @@ export default class PointPresenter {
 
     remove(prevFormEditComponent);
     remove(prevPointEventComponent);
-
   };
 
   destroy = () => {
@@ -90,5 +89,4 @@ export default class PointPresenter {
     this.#replacePointToForm();
     document.removeEventListener('keydown', this.#onEscKeyDown);
   };
-
 }

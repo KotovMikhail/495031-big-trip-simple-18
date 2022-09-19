@@ -9,16 +9,15 @@ const ID = 10;
 const MODEL_LENGTH = 11;
 
 const POINTS_TYPE = [
-  'Taxi',
-  'Bus',
-  'Train',
-  'Ship',
-  'Drive',
-  'Flight',
-  'Check-in',
-  'Sightseeing',
-  'Restaurant',
-  'Restaurant',
+  'taxi',
+  'bus',
+  'train',
+  'ship',
+  'drive',
+  'flight',
+  'check-in',
+  'sightseeing',
+  'restaurant'
 ];
 
 const OFFERS_TITLE = [
@@ -30,8 +29,7 @@ const OFFERS_TITLE = [
   'Flight',
   'Check-in',
   'Book tickets',
-  'Lunch in city',
-  'Rent a car',
+  'Lunch in city'
 ];
 
 const DATE_FROM = [
@@ -43,8 +41,7 @@ const DATE_FROM = [
   '2019-07-15T02:55:56.845Z',
   '2019-05-16T03:55:56.845Z',
   '2019-07-11T06:55:56.845Z',
-  '2019-08-10T19:55:56.845Z',
-  '2019-08-10T19:55:56.845Z',
+  '2019-08-10T19:55:56.845Z'
 ];
 
 const DATE_TO = [
@@ -56,8 +53,7 @@ const DATE_TO = [
   '2019-07-15T02:55:56.845Z',
   '2019-05-16T03:55:56.845Z',
   '2019-07-11T06:55:56.845Z',
-  '2019-08-10T19:55:56.845Z',
-  '2019-08-10T19:55:56.845Z',
+  '2019-08-10T19:55:56.845Z'
 ];
 
 const CITY_NAMES = [

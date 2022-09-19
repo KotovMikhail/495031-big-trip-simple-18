@@ -8,6 +8,9 @@ const humanizeDateToDateWithTime = (date) => dayjs(date).format('YYYY-MM-DDTHH:m
 
 const humanizeDateToDate = (date) => dayjs(date).format('YYYY-MM-DD');
 
+const humanizeDateToDateWithSpace = (date) => dayjs(date).format('DD/MM/YY HH:mm');
+
+
 const checkDates = (dateFrom, dateTo) => {
   const dates = {
     dateFrom: dateFrom,
@@ -28,6 +31,7 @@ export {
   humanizeDateToShortTime,
   humanizeDateToShortDate,
   humanizeDateToDateWithTime,
+  humanizeDateToDateWithSpace,
   humanizeDateToDate,
   checkDates
 };
