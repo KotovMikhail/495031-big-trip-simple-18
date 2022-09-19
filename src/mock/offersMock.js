@@ -1,10 +1,12 @@
-import { getRandomInteger } from '../utils/common.js';
+import { getRandomInteger } from '../utils/common';
 import { POINTS_TYPE, OFFERS_TITLE, MIN_OFFER_PRICE, MAX_OFFER_PRICE } from './consts.js';
 
-const generateOfferType = () => {
-  const randomIndex = getRandomInteger(0, POINTS_TYPE.length - 1);
+const generateOfferType = (id) => {
+  let type = null;
 
-  return POINTS_TYPE[randomIndex];
+  type = POINTS_TYPE[id];
+
+  return type;
 };
 
 const generateOfferTitle = () => {
@@ -17,35 +19,38 @@ const generateOfferPrice = () => getRandomInteger(MIN_OFFER_PRICE, MAX_OFFER_PRI
 
 
 const generateOffers = () => {
-  const id = getRandomInteger(1, 4);
   const arr = [];
 
-  const obj = {
-    id: id,
-    title: generateOfferTitle(),
-    price: generateOfferPrice(),
-  };
+  for (let i = 0; i < 5; i++) {
+    const obj = {
+      id: i,
+      title: generateOfferTitle(),
+      price: generateOfferPrice(),
+    };
 
-  arr.push(obj);
-
+    arr.push(obj);
+  }
 
   return arr;
 };
 
 
-const generateOffer = (id) => ({
+const generateOffersData = (id) => ({
   type: generateOfferType(id),
   offers: generateOffers(id),
 });
 
-
 export const getOffersData = () => {
-  const points = [];
+  const arr = [];
 
   for (let i = 0; i < 10; i++) {
-    points.push(generateOffer(i));
+    arr.push(generateOffersData(i));
   }
 
-  return points;
+  return arr;
 };
 
+const offersMock = getOffersData(OFFERS_TITLE.length);
+
+
+export {offersMock};

@@ -7,6 +7,8 @@ const getRandomInteger = (a = 0, b = 1) => {
   return Math.floor(lower + Math.random() * (upper - lower + 1));
 };
 
+const firstLetterToLowerCase = (title) => title.split(' ').splice(-1)[0];
+
 const capitalizeFirstLetter = (string) => string.charAt(0).toUpperCase() + string.slice(1);
 
 const getUniqArray = (data) => {
@@ -55,6 +57,7 @@ const sortByPrice = (basePriceA, basePriceB) => compareBasePrice(basePriceA.base
 
 export {
   capitalizeFirstLetter,
+  firstLetterToLowerCase,
   getUniqArray,
   getRandomInteger,
   getSelectedOffers,

@@ -1,11 +1,13 @@
-import { getRandomInteger } from '../utils/common.js';
+import { getRandomInteger } from '../utils/common';
 import { POINTS_TYPE, DATE_FROM, DATE_TO, MIN_PRICE, MAX_PRICE } from './consts.js';
 import { nanoid } from 'nanoid';
 
-const generatePointType = () => {
-  const randomIndex = getRandomInteger(0, POINTS_TYPE.length - 1);
+const generatePointType = (id) => {
+  let type = null;
 
-  return POINTS_TYPE[randomIndex];
+  type = POINTS_TYPE[id];
+
+  return type;
 };
 
 const generateDateFrom = () => {
@@ -20,12 +22,11 @@ const generatedateFrom = () => {
   return DATE_TO[randomIndex];
 };
 
-const generateOffersArrID = () => {
+const generateOffers = () => {
   const arr = [];
-  const arrLength = getRandomInteger(1, 5);
 
-  for (let index = 0; index < arrLength; index++) {
-    arr.push(getRandomInteger(1, 5));
+  for (let i = 0; i < getRandomInteger(0, 3); i++) {
+    arr.push(i);
   }
 
   return Array.from(new Set(arr));
@@ -39,18 +40,17 @@ const generatePointsData = (id) => (
     dateFrom: generateDateFrom(),
     dateTo: generatedateFrom(),
     destination: id,
-    offers: generateOffersArrID(),
-    type: generatePointType(),
+    offers: generateOffers(),
+    type: generatePointType(id),
   }
 );
 
 export const getPointsData = () => {
   const points = [];
 
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < POINTS_TYPE.length; i++) {
     points.push(generatePointsData(i));
   }
 
   return points;
 };
-
