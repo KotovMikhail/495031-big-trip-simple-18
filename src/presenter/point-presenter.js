@@ -1,44 +1,44 @@
 import { render, replace, remove } from '../framework/render.js';
-import {Mode} from '../mock/consts.js';
+import { Mode } from '../mock/consts.js';
 import PointItemView from '../view/point-item-view.js';
-import PointEventView from '../view/point-event-view.js';
 import FormEditView from '../view/form-edit-view.js';
-
+import { UserAction, UpdateType } from '../mock/consts.js';
 
 export default class PointPresenter {
   #pointsListComponent = null;
   #pointItemComponent = null;
-  #pointEventComponent = null;
   #formEditComponent = null;
   #changeMode = null;
-
+  #changeData = null;
+  #point = null;
   #mode = Mode.DEFAULT;
 
-  constructor(pointsListComponent, changeMode) {
+  constructor(pointsListComponent, changeData, changeMode) {
     this.#pointsListComponent = pointsListComponent;
     this.#changeMode = changeMode;
+    this.#changeData = changeData;
   }
 
   init = (point) => {
-    const prevPointEventComponent = this.#pointEventComponent;
+    this.#point = point;
+    const prevPointItemComponent = this.#pointItemComponent;
     const prevFormEditComponent = this.#formEditComponent;
 
-    this.#pointItemComponent = new PointItemView();
-    this.#pointEventComponent = new PointEventView(point);
+    this.#pointItemComponent = new PointItemView(point);
     this.#formEditComponent = new FormEditView(point);
-
-    render(this.#pointEventComponent, this.#pointItemComponent.element);
 
     this.#pointItemComponent.setPointItemClickiHandler(this.#handlePointItemClick);
     this.#formEditComponent.setFormEditSubmitHandler(this.#handleFormEditSubmit);
+    this.#formEditComponent.setFormEditCloseHandler(this.#handleFormCloseClick);
+    this.#formEditComponent.setFormDeletePointHandler(this.#handleFormDeleteClick);
 
-    if (prevPointEventComponent === null || prevFormEditComponent === null) {
+    if (prevPointItemComponent === null || prevFormEditComponent === null) {
       render(this.#pointItemComponent, this.#pointsListComponent.element);
       return;
     }
 
     if (this.#mode === Mode.DEFAULT) {
-      replace(this.#pointEventComponent, prevPointEventComponent);
+      replace(this.#pointItemComponent, prevPointItemComponent);
     }
 
     if (this.#mode === Mode.EDITING) {
@@ -46,47 +46,75 @@ export default class PointPresenter {
     }
 
     remove(prevFormEditComponent);
-    remove(prevPointEventComponent);
+    remove(prevPointItemComponent);
   };
 
   destroy = () => {
     remove(this.#pointItemComponent);
-    remove(this.#pointEventComponent);
     remove(this.#formEditComponent);
   };
 
   resetView = () => {
     if (this.#mode !== Mode.DEFAULT) {
-      this.#replacePointToForm();
+      this.#formEditComponent.reset(this.#point);
+      this.#replaceFormToPoint();
     }
   };
 
   #replacePointToForm = () => {
-    replace(this.#pointEventComponent, this.#formEditComponent);
-    this.#mode = Mode.DEFAULT;
-  };
-
-  #replaceFormToPoint = () => {
-    replace(this.#formEditComponent, this.#pointEventComponent);
+    replace(this.#formEditComponent, this.#pointItemComponent);
+    document.addEventListener('keydown', this.#onEscKeyDownHandler);
     this.#changeMode();
     this.#mode = Mode.EDITING;
   };
 
-  #onEscKeyDown = (evt) => {
+  #replaceFormToPoint = () => {
+    replace(this.#pointItemComponent, this.#formEditComponent);
+    document.removeEventListener('keydown', this.#onEscKeyDownHandler);
+    this.#mode = Mode.DEFAULT;
+  };
+
+  #onEscKeyDownHandler = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
-      this.#replacePointToForm();
-      document.removeEventListener('keydown', this.#onEscKeyDown);
+
+      this.#replaceFormToPoint();
+      //this.#formEditComponent.reset(this.#point);
+      document.removeEventListener('keydown', this.#onEscKeyDownHandler);
     }
   };
 
-  #handlePointItemClick = () => {
+  #handleFormCloseClick = () => {
     this.#replaceFormToPoint();
-    document.addEventListener('keydown', this.#onEscKeyDown);
+    document.removeEventListener('keydown', this.#onEscKeyDownHandler);
   };
 
-  #handleFormEditSubmit = () => {
+  #handlePointItemClick = () => {
     this.#replacePointToForm();
-    document.removeEventListener('keydown', this.#onEscKeyDown);
+    document.addEventListener('keydown', this.#onEscKeyDownHandler);
+  };
+
+  #handleFormDeleteClick = (point) => {
+    this.#changeData(
+      UserAction.DELETE_POINT,
+      UpdateType.MINOR,
+      point,
+    );
+
+    document.removeEventListener('keydown', this.#onEscKeyDownHandler);
+  };
+
+  #handleFormEditSubmit = (update) => {
+    // Код для минора или патча
+    const isMinorUpdate = true;
+
+    this.#changeData(
+      UserAction.UPDATE_POINT,
+      isMinorUpdate ? UpdateType.PATCH : UpdateType.MINOR,
+      update,
+    );
+
+    this.#replaceFormToPoint();
+    document.removeEventListener('keydown', this.#onEscKeyDownHandler);
   };
 }

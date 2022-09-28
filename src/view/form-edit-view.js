@@ -3,7 +3,8 @@ import { capitalizeFirstLetter, firstLetterToLowerCase, getDestinations, getPoin
 import { humanizeDateToDateWithSpace } from '../utils/day.js';
 import { offersMock } from '../mock/offersMock.js';
 import { destinationsMock } from '../mock/destinationsMock.js';
-import { POINTS_TYPE } from '../mock/consts';
+import { POINTS_TYPE, NewPoint } from '../mock/consts';
+import he from 'he';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
@@ -11,11 +12,20 @@ import 'flatpickr/dist/flatpickr.min.css';
 const createFormEditTemplate = (point) => {
   const { type, dateFrom, dateTo } = point;
 
-  const pointByDestinationName = getDestinations(point, destinationsMock);
+
+  let pointByDestinationName = getDestinations(point, destinationsMock);
   const pointByOfferType = getPointByOfferType(point, offersMock);
 
+  if (!pointByDestinationName) {
+    pointByDestinationName = false;
+  }
+
   const { description } = pointByDestinationName;
-  const { name } = pointByDestinationName;
+  let { name } = pointByDestinationName;
+
+  if (!pointByDestinationName) {
+    name = '';
+  }
 
 
   const createFormCitiesListTemplate = () => {
@@ -54,7 +64,7 @@ const createFormEditTemplate = (point) => {
         <label class="event__label event__type-output" for="event-destination-1">
           ${type}
         </label>
-        <input class="event__input event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${name}" list="destination-list-1">
+        <input class="event__input event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(name)}" list="destination-list-1">
         <datalist id="destination-list-1">
           ${createFormCitiesListTemplate()}
         </datalist>
@@ -87,9 +97,6 @@ const createFormEditTemplate = (point) => {
   const createFormOffersItems = () => {
     const isOfferChecked = (id) => point.offers.includes(id) ? 'checked' : '';
 
-    //console.log(point);
-    //console.log(pointByOfferType);
-
     const createFormOfferItem = () => pointByOfferType.offers.map(({ id, title, price }) => `
             <div class="event__offer-selector">
               <input class="event__offer-checkbox visually-hidden" id="event-offer-${firstLetterToLowerCase(title)}-${id}" type="checkbox" data-id="${id}" name="event-offer-${firstLetterToLowerCase(title)}" ${isOfferChecked(id)}>
@@ -121,40 +128,38 @@ const createFormEditTemplate = (point) => {
     );
   };
 
-  const createFormDestinationTemplate = () => {
-    const createPhotos = () => {
-      if (!pointByDestinationName.pictures.length) {
-        return '';
-      }
+  const createPhotosTemplate = () =>
+    pointByDestinationName.pictures
+      .map((picture) => `<img class="event__photo" src="${picture.src}" alt="Event photo">`)
+      .join('');
 
-      return pointByDestinationName.pictures
-        .map((picture) => `<img class="event__photo" src="${picture.src}" alt="Event photo">`)
-        .join('');
-    };
 
-    return (`
-      <section class="event__section  event__section--destination">
-        <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-        <p class="event__destination-description">${description}</p>
-    
-        <div class="event__photos-container">
-          <div class="event__photos-tape">
-            ${createPhotos()}
+  const createFormDestinationTemplate = () => (`
+      ${pointByDestinationName ? `
+        <section class="event__section  event__section--destination">
+          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+          <p class="event__destination-description">${description}</p>
+      
+          <div class="event__photos-container">
+            <div class="event__photos-tape">
+              ${createPhotosTemplate()}
+            </div>
           </div>
-        </div>
-      </section>
-    `);
-  };
+        </section>` : ''
+    }`
+  );
 
 
   return (`
-  <form class="event event--edit" action="#" method="post">
-    ${createFormEventHeaderTemplate(point)}
-    <section class="event__details">
-      ${createFormOffersListTemplate(point)}
-      ${createFormDestinationTemplate(point)}
-    </section>
-  </form>
+  <li class="trip-events__item">
+    <form class="event event--edit" action="#" method="post">
+      ${createFormEventHeaderTemplate(point)}
+      <section class="event__details">
+        ${createFormOffersListTemplate(point)}
+        ${createFormDestinationTemplate(point)}
+      </section>
+    </form>
+  </li>
 `);
 };
 
@@ -163,6 +168,11 @@ export default class FormEditView extends AbstractStatefullView {
 
   constructor(point) {
     super();
+
+    if (!point) {
+      point = NewPoint;
+    }
+
     this._state = FormEditView.parsePointToState(point);
 
     this.#setInnerHandlers();
@@ -195,14 +205,23 @@ export default class FormEditView extends AbstractStatefullView {
     this.#setFromDatepicker();
     this.#setToDatepicker();
     this.setFormEditSubmitHandler(this._callback.formEditSubmit);
+    this.setFormEditCloseHandler(this._callback.formCloseClick);
+    this.setFormDeletePointHandler(this._callback.formDeleteClick);
   };
 
   setFormEditSubmitHandler = (callback) => {
     this._callback.formEditSubmit = callback;
     this.element.addEventListener('submit', this.#formEditSubmitHandler);
+  };
 
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formEditSubmitHandler);
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formEditSubmitHandler);
+  setFormEditCloseHandler = (callback) => {
+    this._callback.formCloseClick = callback;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formEditCloseHandler);
+  };
+
+  setFormDeletePointHandler = (callback) => {
+    this._callback.formDeleteClick = callback;
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeletePointHandler);
   };
 
   #setInnerHandlers = () => {
@@ -213,8 +232,8 @@ export default class FormEditView extends AbstractStatefullView {
       .forEach((eventOffer) => eventOffer.addEventListener('change', this.#eventOfferCheckboxHandler));
 
     this.element.querySelector('.event__input--destination').addEventListener('input', this.#eventInputDestinationHandler);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formEditSubmitHandler);
-    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formEditSubmitHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formEditCloseHandler);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeletePointHandler);
   };
 
   #setFromDatepicker = () => {
@@ -272,6 +291,16 @@ export default class FormEditView extends AbstractStatefullView {
   #formEditSubmitHandler = (evt) => {
     evt.preventDefault();
     this._callback.formEditSubmit(FormEditView.parseStateToPoint(this._state));
+  };
+
+  #formEditCloseHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.formCloseClick(FormEditView.parseStateToPoint(this._state));
+  };
+
+  #formDeletePointHandler = (evt) => {
+    evt.preventDefault();
+    this._callback.formDeleteClick(FormEditView.parseStateToPoint(this._state));
   };
 
   #eventTypeInputHandler = (evt) => {

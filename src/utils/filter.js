@@ -1,11 +1,9 @@
-import {FilterType} from '../mock/consts.js';
+import { FilterType } from '../mock/consts.js';
+import dayjs from 'dayjs';
 
 const filter = {
-  [FilterType.DAY]: (point) => point.some((item) => (item.dateFrom === '' && item.dateTo === '') ? 'disabled' : ''),
-  [FilterType.EVENT]: () => 'disabled',
-  [FilterType.TIME]: () => 'disabled',
-  [FilterType.PRICE]: (point) => point.some((item) => (item.basePrice === '') ? 'disabled' : ''),
-  [FilterType.OFFERS]: () => 'disabled',
+  [FilterType.EVERYTHING]: (points) => points,
+  [FilterType.FUTURE]: (points) => points.filter((point) => dayjs().isBefore(point.dateFrom) || dayjs().isBefore(point.dateTo)),
 };
 
-export {filter};
+export { filter };
