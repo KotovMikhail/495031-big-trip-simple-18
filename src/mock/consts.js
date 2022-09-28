@@ -1,3 +1,6 @@
+import dayjs from 'dayjs';
+import { getRandomInteger } from '../utils/common';
+
 const MIN_PRICE = 1000;
 const MAX_PRICE = 10000;
 
@@ -33,27 +36,27 @@ const OFFERS_TITLE = [
 ];
 
 const DATE_FROM = [
-  '2019-06-09T12:55:56.845Z',
-  '2019-04-08T22:55:56.845Z',
-  '2019-03-10T21:55:56.845Z',
-  '2019-02-12T22:55:56.845Z',
-  '2019-01-18T01:55:56.845Z',
-  '2019-07-15T02:55:56.845Z',
-  '2019-05-16T03:55:56.845Z',
-  '2019-07-11T06:55:56.845Z',
-  '2019-08-10T19:55:56.845Z'
+  '2022-05-09T12:55:56.845Z',
+  '2022-03-08T22:55:56.845Z',
+  '2022-02-10T21:55:56.845Z',
+  '2022-01-12T22:55:56.845Z',
+  '2022-01-18T01:55:56.845Z',
+  '2022-06-15T02:55:56.845Z',
+  '2022-04-16T03:55:56.845Z',
+  '2022-10-12T06:55:56.845Z',
+  '2022-11-11T19:55:56.845Z'
 ];
 
 const DATE_TO = [
-  '2019-06-09T12:55:56.845Z',
-  '2019-04-08T22:55:56.845Z',
-  '2019-03-10T21:55:56.845Z',
-  '2019-02-12T22:55:56.845Z',
-  '2019-01-18T01:55:56.845Z',
-  '2019-07-15T02:55:56.845Z',
-  '2019-05-16T03:55:56.845Z',
-  '2019-07-11T06:55:56.845Z',
-  '2019-08-10T19:55:56.845Z'
+  '2022-06-09T12:55:56.845Z',
+  '2022-04-08T22:55:56.845Z',
+  '2022-03-10T21:55:56.845Z',
+  '2022-02-12T22:55:56.845Z',
+  '2022-01-18T01:55:56.845Z',
+  '2022-07-15T02:55:56.845Z',
+  '2022-05-16T03:55:56.845Z',
+  '2022-12-11T06:55:56.845Z',
+  '2022-12-10T19:55:56.845Z'
 ];
 
 const CITY_NAMES = [
@@ -82,12 +85,15 @@ const DESCRIPTIONS = [
   'Ad, adipisci animi aspernatur dolore dolores enim, error est fugiat id maxime quis quos tempora vitae? Alias earum est facilis hic ipsa iusto omnis quae, quas. Accusamus accusantium consectetur corporis est ex facilis, ipsam, laudantium molestias nostrum officia, quia quisquam sit veniam.',
 ];
 
+
 const FilterType = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+};
+
+const SortType = {
   DAY: 'day',
-  EVENT: 'event',
-  TIME: 'time',
   PRICE: 'price',
-  OFFERS: 'offer'
 };
 
 const Mode = {
@@ -95,12 +101,27 @@ const Mode = {
   EDITING: 'EDITING',
 };
 
-const SortType = {
-  DEFAULT: 'default',
-  DAY: 'day',
-  PRICE: 'price',
+const UserAction = {
+  UPDATE_POINT: 'UPDATE_POINT',
+  ADD_POINT: 'ADD_POINT',
+  DELETE_POINT: 'DELETE_POINT',
 };
 
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+  INIT: 'INIT',
+};
+
+const NewPoint = {
+  dateFrom: dayjs().toISOString(),
+  dateTo: dayjs().toISOString(),
+  destination: null,
+  type: POINTS_TYPE[0],
+  basePrice: getRandomInteger(MIN_PRICE, MAX_PRICE),
+  offers: [],
+};
 
 export {
   POINTS_TYPE,
@@ -116,5 +137,8 @@ export {
   ID,
   FilterType,
   Mode,
-  SortType
+  SortType,
+  UserAction,
+  UpdateType,
+  NewPoint
 };
