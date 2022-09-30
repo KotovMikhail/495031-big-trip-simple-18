@@ -10,6 +10,7 @@ import 'flatpickr/dist/flatpickr.min.css';
 const createFormEditTemplate = (point, offers, destinations) => {
   const { type, dateFrom, dateTo } = point;
 
+
   const pointByOfferType = getPointByOfferType(point, offers);
   let pointByDestinationName = getDestinations(point, destinations);
 
@@ -84,7 +85,9 @@ const createFormEditTemplate = (point, offers, destinations) => {
       </div>
   
       <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-      <button class="event__reset-btn" type="reset">Delete</button>
+      <button class="event__reset-btn" type="reset">
+        ${point.id === undefined ? 'Cancel' : 'Delete'} 
+       </button>
       <button class="event__rollup-btn" type="button">
         <span class="visually-hidden">Open event</span>
       </button>
@@ -335,6 +338,7 @@ export default class FormEditView extends AbstractStatefullView {
       .map((item) => item.value)
       .join(' ')
       .includes((evt.target.value));
+
 
     if (!city) {
       input.value = input.value.substring(0, input.value.length - 1);

@@ -1,5 +1,5 @@
 import { render, RenderPosition } from './framework/render.js';
-import {UrlData} from './consts.js';
+import { UrlData } from './consts.js';
 import PointsModel from './model/points-model.js';
 import FilterModel from './model/filter-model.js';
 import TripPresenter from './presenter/trip-presenter.js';
@@ -30,12 +30,14 @@ const handleNewButtonClick = () => {
   newEventBtnComponent.element.disabled = true;
 };
 
-
 render(tripInfoComponent, tripMainElement, RenderPosition.AFTERBEGIN);
 
 newEventBtnComponent.setClickHandler(handleNewButtonClick);
 
 filterPresenter.init();
-render(newEventBtnComponent, tripMainElement);
 tripPresenter.init();
-pointsModel.init();
+pointsModel.init()
+  .finally(() => {
+    render(newEventBtnComponent, tripMainElement);
+    newEventBtnComponent.setClickHandler(handleNewButtonClick);
+  });

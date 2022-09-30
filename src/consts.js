@@ -117,7 +117,7 @@ const UpdateType = {
 const NewPoint = {
   dateFrom: dayjs().toISOString(),
   dateTo: dayjs().toISOString(),
-  destination: null,
+  destination: 0,
   type: 'taxi',
   basePrice: getRandomInteger(MIN_PRICE, MAX_PRICE),
   offers: [],

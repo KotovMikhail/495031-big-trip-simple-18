@@ -109,6 +109,7 @@ export default class PointPresenter {
 
   #handleFormEditSubmit = (update) => {
     // Код для минора или патча
+
     const isMinorUpdate = true;
 
     this.#changeData(
