@@ -1,22 +1,21 @@
 import { remove, render, RenderPosition } from '../framework/render.js';
 import { sortByDay, sortByPrice } from '../utils/common.js';
+import { SortType, UserAction, UpdateType, FilterType } from '../consts.js';
+import { filter } from '../utils/filter.js';
 import SortView from '../view/sort-view.js';
 import PointsListView from '../view/points-list-view.js';
 import ListEmptyViewView from '../view/list-empty-view.js';
 import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter';
 import LoadingMsgView from '../view/loading-msg-view.js';
-import { filter } from '../utils/filter.js';
-import { SortType, UserAction, UpdateType, FilterType } from '../mock/consts.js';
 
 export default class TripPresenter {
   #pointsModel = null;
   #filterModel = null;
-
   #tripEventsElement = null;
   #filterSortComponent = null;
   #listEmptyComponent = null;
-  #isLoading = null;
+  #isLoading = true;
 
   #pointsListComponent = new PointsListView();
   #loadingComponent = new LoadingMsgView();
@@ -32,7 +31,7 @@ export default class TripPresenter {
     this.#pointsModel = pointsModel;
     this.#filterModel = filterModel;
 
-    this.#newPointPresenter = new NewPointPresenter(this.#pointsListComponent, this.#handleViewAction);
+    this.#newPointPresenter = new NewPointPresenter(this.#pointsListComponent, this.#handleViewAction, this.#pointsModel);
 
     this.#pointsModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
@@ -43,16 +42,14 @@ export default class TripPresenter {
     const points = this.#pointsModel.points;
     const filteredPoints = filter[this.#filterType](points);
 
-
     switch (this.#currentSortType) {
-      case SortType.DAY:
-        return filteredPoints.sort(sortByDay);
       case SortType.PRICE:
         return filteredPoints.sort(sortByPrice);
+      case SortType.DAY:
+        return filteredPoints.sort(sortByDay);
+
     }
-
-    return this.#pointsModel.points;
-
+    return filteredPoints;
   }
 
   init = () => {
@@ -60,11 +57,6 @@ export default class TripPresenter {
   };
 
   #handleViewAction = (actionType, updateType, update) => {
-    // Здесь будем вызывать обновление модели.
-    // actionType - действие пользователя, нужно чтобы понять, какой метод модели вызвать
-    // updateType - тип изменений, нужно чтобы понять, что после нужно обновить
-    // update - обновленные данные
-
     switch (actionType) {
       case UserAction.UPDATE_POINT:
         this.#pointsModel.updatePoint(updateType, update);
@@ -79,24 +71,15 @@ export default class TripPresenter {
   };
 
   #handleModelEvent = (updateType, data) => {
-
-    // В зависимости от типа изменений решаем, что делать:
-    // - обновить часть списка (например, когда поменялось описание)
-    // - обновить список (например, когда задача ушла в архив)
-    // - обновить всю доску (например, при переключении фильтра)
-
     switch (updateType) {
       case UpdateType.PATCH:
-        // - обновить часть списка (например, когда поменялось описание)
         this.#pointPresenter.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
-        // - обновить список (например, когда задача ушла в архив)
         this.#clearTrip();
         this.#renderTrip();
         break;
       case UpdateType.MAJOR:
-        // - обновить всю доску (например, при переключении фильтра)
         this.#clearTrip({ resetSortType: true });
         this.#renderTrip();
         break;
@@ -132,11 +115,9 @@ export default class TripPresenter {
     }
 
     this.#currentSortType = sortType;
-
     this.#clearTrip();
     this.#renderTrip();
   };
-
 
   #handleModeChange = () => {
     this.#newPointPresenter.destroy();
@@ -150,19 +131,16 @@ export default class TripPresenter {
   };
 
   #renderPointItem = (point) => {
-    const pointPresenter = new PointPresenter(this.#pointsListComponent, this.#handleViewAction, this.#handleModeChange);
+    const pointPresenter = new PointPresenter(this.#pointsListComponent, this.#handleViewAction, this.#handleModeChange, this.#pointsModel);
     pointPresenter.init(point);
     this.#pointPresenter.set(point.id, pointPresenter);
   };
 
-  #renderPointsList = () => {
-    for (const point of [...this.#pointsModel.points]) {
-      this.#renderPointItem(point);
-    }
+  #renderPointsList = (points) => {
+    points.forEach((point) => this.#renderPointItem(point));
   };
 
   #clearTrip = ({ resetSortType = false } = {}) => {
-
     this.#newPointPresenter.destroy();
     this.#pointPresenter.forEach((presenter) => presenter.destroy());
     this.#pointPresenter.clear();
@@ -170,11 +148,9 @@ export default class TripPresenter {
     remove(this.#filterSortComponent);
     remove(this.#loadingComponent);
 
-
     if (this.#listEmptyComponent) {
       remove(this.#listEmptyComponent);
     }
-
 
     if (resetSortType) {
       this.#currentSortType = SortType.DAY;
@@ -198,6 +174,6 @@ export default class TripPresenter {
     render(this.#pointsListComponent, this.#tripEventsElement);
 
     this.#renderFilterSort();
-    this.#renderPointsList();
+    this.#renderPointsList(points.slice(0, Math.min(pointsCount)));
   };
 }

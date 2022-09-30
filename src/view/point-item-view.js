@@ -1,13 +1,11 @@
 import AbstractView from '../framework/view/abstract-view';
-import {offersMock} from '../mock/offersMock.js';
-import {destinationsMock} from '../mock/destinationsMock.js';
 import { getPointByOfferType, getSelectedOffers, getDestinations } from '../utils/common.js';
 import { humanizeDateToShortTime, humanizeDateToShortDate, humanizeDateToDate, humanizeDateToDateWithTime, checkDates } from '../utils/day.js';
 
-const createPointEventTemplate = (point) => {
-  const pointByOfferType = getPointByOfferType(point, offersMock);
+const createPointEventTemplate = (point, offers, destinations) => {
+  const pointByOfferType = getPointByOfferType(point, offers);
   const selectedOffers = getSelectedOffers(point.offers, pointByOfferType.offers);
-  const pointByDestinationName = getDestinations(point, destinationsMock);
+  const pointByDestinationName = getDestinations(point, destinations);
 
   const { basePrice, dateFrom, dateTo, type } = point;
   const { name } = pointByDestinationName;
@@ -27,8 +25,7 @@ const createPointEventTemplate = (point) => {
         ${selectedOffers.map(({ title, price }) => `
         <li class="event__offer">
           <span class="event__offer-title">${title}</span>&plus;&euro;&nbsp;<span class="event__offer-price">${price}</span>
-        </li>`)
-      .join('')}
+        </li>`).join('')}
       </ul>` :
       `<ul class="event__selected-offers">
         <li class="event__offer">
@@ -65,14 +62,18 @@ const createPointEventTemplate = (point) => {
 
 export default class PointEventView extends AbstractView {
   #point = null;
+  #offers = null;
+  #destinations = null;
 
-  constructor(point) {
+  constructor(point, offers, destinations) {
     super();
     this.#point = point;
+    this.#offers = offers;
+    this.#destinations = destinations;
   }
 
   get template() {
-    return createPointEventTemplate(this.#point);
+    return createPointEventTemplate(this.#point, this.#offers, this.#destinations);
   }
 
   setPointItemClickiHandler = (callback) => {

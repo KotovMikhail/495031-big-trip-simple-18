@@ -1,10 +1,10 @@
 import { render, replace, remove } from '../framework/render.js';
-import { Mode } from '../mock/consts.js';
 import PointItemView from '../view/point-item-view.js';
 import FormEditView from '../view/form-edit-view.js';
-import { UserAction, UpdateType } from '../mock/consts.js';
+import { UserAction, UpdateType, Mode } from '../consts.js';
 
 export default class PointPresenter {
+  #pointsModel = null;
   #pointsListComponent = null;
   #pointItemComponent = null;
   #formEditComponent = null;
@@ -13,19 +13,22 @@ export default class PointPresenter {
   #point = null;
   #mode = Mode.DEFAULT;
 
-  constructor(pointsListComponent, changeData, changeMode) {
+  constructor(pointsListComponent, changeData, changeMode, pointsModel) {
     this.#pointsListComponent = pointsListComponent;
     this.#changeMode = changeMode;
     this.#changeData = changeData;
+    this.#pointsModel = pointsModel;
   }
 
   init = (point) => {
     this.#point = point;
+    const offers = [...this.#pointsModel.offers];
+    const destinations = [...this.#pointsModel.destinations];
     const prevPointItemComponent = this.#pointItemComponent;
     const prevFormEditComponent = this.#formEditComponent;
 
-    this.#pointItemComponent = new PointItemView(point);
-    this.#formEditComponent = new FormEditView(point);
+    this.#pointItemComponent = new PointItemView(point, offers, destinations);
+    this.#formEditComponent = new FormEditView(point, offers, destinations);
 
     this.#pointItemComponent.setPointItemClickiHandler(this.#handlePointItemClick);
     this.#formEditComponent.setFormEditSubmitHandler(this.#handleFormEditSubmit);

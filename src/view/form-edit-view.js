@@ -1,20 +1,17 @@
 import AbstractStatefullView from '../framework/view/abstract-stateful-view.js';
 import { capitalizeFirstLetter, firstLetterToLowerCase, getDestinations, getPointByOfferType } from '../utils/common.js';
 import { humanizeDateToDateWithSpace } from '../utils/day.js';
-import { offersMock } from '../mock/offersMock.js';
-import { destinationsMock } from '../mock/destinationsMock.js';
-import { POINTS_TYPE, NewPoint } from '../mock/consts';
+import { POINTS_TYPE, NewPoint } from '../consts';
 import he from 'he';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
 
-const createFormEditTemplate = (point) => {
+const createFormEditTemplate = (point, offers, destinations) => {
   const { type, dateFrom, dateTo } = point;
 
-
-  let pointByDestinationName = getDestinations(point, destinationsMock);
-  const pointByOfferType = getPointByOfferType(point, offersMock);
+  const pointByOfferType = getPointByOfferType(point, offers);
+  let pointByDestinationName = getDestinations(point, destinations);
 
   if (!pointByDestinationName) {
     pointByDestinationName = false;
@@ -29,11 +26,11 @@ const createFormEditTemplate = (point) => {
 
 
   const createFormCitiesListTemplate = () => {
-    if (!destinationsMock.length) {
+    if (!destinations.length) {
       return '';
     }
 
-    return destinationsMock.map((item) => `<option value="${item.name}"></option>`).join('');
+    return destinations.map((item) => `<option value="${item.name}"></option>`).join('');
   };
 
   const createFormEditEventTypeListTemplate = () => POINTS_TYPE.map((eventType, id) =>
@@ -165,9 +162,13 @@ const createFormEditTemplate = (point) => {
 
 export default class FormEditView extends AbstractStatefullView {
   #datepicker = null;
+  #offers = null;
+  #destinations = null;
 
-  constructor(point) {
+  constructor(point, offers, destinations) {
     super();
+    this.#offers = offers;
+    this.#destinations = destinations;
 
     if (!point) {
       point = NewPoint;
@@ -182,7 +183,7 @@ export default class FormEditView extends AbstractStatefullView {
   }
 
   get template() {
-    return createFormEditTemplate(this._state);
+    return createFormEditTemplate(this._state, this.#offers, this.#destinations);
   }
 
   removeElement = () => {
@@ -339,7 +340,7 @@ export default class FormEditView extends AbstractStatefullView {
       input.value = input.value.substring(0, input.value.length - 1);
     }
 
-    const dest = destinationsMock.find((item) => item.name === evt.target.value);
+    const dest = this.#destinations.find((item) => item.name === evt.target.value);
 
     if (!dest) {
       return;
