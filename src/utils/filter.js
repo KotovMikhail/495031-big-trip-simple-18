@@ -1,9 +1,9 @@
-import { FilterType } from '../mock/consts.js';
+import { FilterType } from '../consts.js';
 import dayjs from 'dayjs';
 
 const filter = {
   [FilterType.EVERYTHING]: (points) => points,
-  [FilterType.FUTURE]: (points) => points.filter((point) => dayjs().isBefore(point.dateFrom) || dayjs().isBefore(point.dateTo)),
+  [FilterType.FUTURE]: (points) => points.filter((point) => dayjs(point.dateTo).isAfter(dayjs())),
 };
 
 export { filter };

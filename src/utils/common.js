@@ -8,25 +8,12 @@ const getRandomInteger = (a = 0, b = 1) => {
 };
 
 const firstLetterToLowerCase = (title) => title.split(' ').splice(-1)[0];
+const isDatesEqual = (dateA, dateB) => dayjs(dateA).isSame(dateB);
 
 const capitalizeFirstLetter = (string) => string.charAt(0).toUpperCase() + string.slice(1);
 
-const getUniqArray = (data) => {
-  const arr = [];
-
-  for (const item of data) {
-    arr.push(item.type);
-  }
-
-  const uniqArray = arr.filter((item, index) => index === arr.indexOf(item));
-
-  return uniqArray;
-};
-
 const getSelectedOffers = (point, offers) => offers.filter((offer) => point.includes(offer.id));
-
 const getPointByOfferType = (point, offers) => offers.find((offer) => offer.type === point.type);
-
 const getDestinations = (point, destinations) => destinations.find((destination) => destination.id === point.destination);
 
 const getWeightForNullDate = (dateA, dateB) => {
@@ -58,11 +45,11 @@ const sortByPrice = (basePriceA, basePriceB) => compareBasePrice(basePriceA.base
 export {
   capitalizeFirstLetter,
   firstLetterToLowerCase,
-  getUniqArray,
   getRandomInteger,
   getSelectedOffers,
   getPointByOfferType,
   getDestinations,
   sortByDay,
-  sortByPrice
+  sortByPrice,
+  isDatesEqual
 };

@@ -1,8 +1,7 @@
 import { render, remove, RenderPosition } from '../framework/render.js';
-import { nanoid } from 'nanoid';
 import FormEditView from '../view/form-edit-view';
 import PointItemView from '../view/point-item-view.js';
-import { UserAction, UpdateType } from '../mock/consts.js';
+import { UserAction, UpdateType } from '../consts.js';
 
 export default class NewPointPresenter {
   #pointsListComponent = null;
@@ -10,21 +9,26 @@ export default class NewPointPresenter {
   #formEditComponent = null;
   #changeData = null;
   #destroyCallback = null;
+  #pointsModel = null;
+  #point = null;
 
-  constructor(pointsListComponent, changeData) {
+  constructor(pointsListComponent, changeData, pointsModel) {
     this.#pointsListComponent = pointsListComponent;
     this.#changeData = changeData;
+    this.#pointsModel = pointsModel;
   }
 
   init = (callback) => {
     this.#destroyCallback = callback;
+    const offers = [...this.#pointsModel.offers];
+    const destinations = [...this.#pointsModel.destinations];
 
     if (this.#formEditComponent !== null) {
       return;
     }
 
     this.#pointItemComponent = new PointItemView();
-    this.#formEditComponent = new FormEditView();
+    this.#formEditComponent = new FormEditView(this.#point, offers, destinations);
 
     this.#formEditComponent.setFormEditSubmitHandler(this.#handleFormEditSubmit);
     this.#formEditComponent.setFormDeletePointHandler(this.#handleFormDeleteClick);
@@ -67,21 +71,21 @@ export default class NewPointPresenter {
     this.#formEditComponent.shake(resetFormState);
   };
 
+
   #handleFormCloseClick = () => {
     this.destroy();
     document.removeEventListener('keydown', this.#onEscKeyDownHandler);
   };
 
   #handleFormEditSubmit = (point) => {
-
-    if(point.destination === null) {
+    if(!point.destination) {
       return;
     }
 
     this.#changeData(
       UserAction.ADD_POINT,
       UpdateType.MINOR,
-      { id: nanoid(), ...point },
+      point,
     );
   };
 
