@@ -8,6 +8,7 @@ const getRandomInteger = (a = 0, b = 1) => {
 };
 
 const firstLetterToLowerCase = (title) => title.split(' ').splice(-1)[0];
+const isDatesEqual = (dateA, dateB) => dayjs(dateA).isSame(dateB);
 
 const capitalizeFirstLetter = (string) => string.charAt(0).toUpperCase() + string.slice(1);
 
@@ -49,5 +50,6 @@ export {
   getPointByOfferType,
   getDestinations,
   sortByDay,
-  sortByPrice
+  sortByPrice,
+  isDatesEqual
 };

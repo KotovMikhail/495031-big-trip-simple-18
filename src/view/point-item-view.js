@@ -5,7 +5,12 @@ import { humanizeDateToShortTime, humanizeDateToShortDate, humanizeDateToDate, h
 const createPointEventTemplate = (point, offers, destinations) => {
   const pointByOfferType = getPointByOfferType(point, offers);
   const selectedOffers = getSelectedOffers(point.offers, pointByOfferType.offers);
-  const pointByDestinationName = getDestinations(point, destinations);
+
+  let pointByDestinationName = getDestinations(point, destinations);
+
+  if (!pointByDestinationName) {
+    pointByDestinationName = false;
+  }
 
   const { basePrice, dateFrom, dateTo, type } = point;
   const { name } = pointByDestinationName;

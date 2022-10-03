@@ -1,30 +1,24 @@
 import AbstractStatefullView from '../framework/view/abstract-stateful-view.js';
 import { capitalizeFirstLetter, firstLetterToLowerCase, getDestinations, getPointByOfferType } from '../utils/common.js';
 import { humanizeDateToDateWithSpace } from '../utils/day.js';
-import { POINTS_TYPE, NewPoint } from '../consts';
+import { NewPoint } from '../consts';
 import he from 'he';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
 
 const createFormEditTemplate = (point, offers, destinations) => {
+  const isDisabled = point.isDisabled;
+  const isSaving = point.isSaving;
+  const isDeleting = point.isDeleting;
+
   const { type, dateFrom, dateTo } = point;
-
-
+  const pointTypes = offers.map((pointType) => pointType.type);
   const pointByOfferType = getPointByOfferType(point, offers);
-  let pointByDestinationName = getDestinations(point, destinations);
-
-  if (!pointByDestinationName) {
-    pointByDestinationName = false;
-  }
+  const pointByDestinationName = getDestinations(point, destinations);
 
   const { description } = pointByDestinationName;
-  let { name } = pointByDestinationName;
-
-  if (!pointByDestinationName) {
-    name = '';
-  }
-
+  const { name } = pointByDestinationName;
 
   const createFormCitiesListTemplate = () => {
     if (!destinations.length) {
@@ -34,7 +28,7 @@ const createFormEditTemplate = (point, offers, destinations) => {
     return destinations.map((item) => `<option value="${item.name}"></option>`).join('');
   };
 
-  const createFormEditEventTypeListTemplate = () => POINTS_TYPE.map((eventType, id) =>
+  const createFormEditEventTypeListTemplate = () => pointTypes.map((eventType, id) =>
     `<div class="event__type-item">
         <input id="event-type-${eventType}-${id}" class="event__type-input visually-hidden" type="radio" name="event-type" value="${eventType}">
         <label class="event__type-label event__type-label--${eventType}" for="event-type-${eventType}-${id}">${capitalizeFirstLetter(eventType)}</label>
@@ -62,7 +56,7 @@ const createFormEditTemplate = (point, offers, destinations) => {
         <label class="event__label event__type-output" for="event-destination-1">
           ${type}
         </label>
-        <input class="event__input event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(name)}" list="destination-list-1">
+        <input class="event__input event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(name || 'Geneva' )}" list="destination-list-1">
         <datalist id="destination-list-1">
           ${createFormCitiesListTemplate()}
         </datalist>
@@ -84,9 +78,12 @@ const createFormEditTemplate = (point, offers, destinations) => {
         <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="160">
       </div>
   
-      <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-      <button class="event__reset-btn" type="reset">
-        ${point.id === undefined ? 'Cancel' : 'Delete'} 
+      <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''} >
+        ${isSaving ? 'Saving...' : 'Save'}
+      </button>
+
+      <button class="event__reset-btn btn" type="reset" ${isDisabled ? 'disabled' : ''}>
+         ${isDeleting ? 'Deleting...' : 'Delete'}
        </button>
       <button class="event__rollup-btn" type="button">
         <span class="visually-hidden">Open event</span>
@@ -250,7 +247,7 @@ export default class FormEditView extends AbstractStatefullView {
         'time_24hr': true,
         defaultDate: dateStartInput.value,
         dateFormat: 'd/m/y H:i',
-        onClose: this.#dateStartHandler,
+        onChange: this.#dateStartHandler,
       },
     );
   };
@@ -267,7 +264,7 @@ export default class FormEditView extends AbstractStatefullView {
         defaultDate: dateEndInput.value,
         dateFormat: 'd/m/y H:i',
         minDate: dateStartInput.value,
-        onClose: this.#dateEndHandler,
+        onChange: this.#dateEndHandler,
       },
     );
   };
@@ -359,10 +356,17 @@ export default class FormEditView extends AbstractStatefullView {
 
   static parsePointToState = (point) => ({
     ...point,
+    isDisabled: false,
+    isSaving: false,
+    isDeleting: false,
   });
 
   static parseStateToPoint = (state) => {
     const point = { ...state };
+
+    delete point.isDisabled;
+    delete point.isSaving;
+    delete point.isDeleting;
 
     return point;
   };

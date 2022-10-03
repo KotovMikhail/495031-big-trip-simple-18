@@ -1,6 +1,7 @@
 import { render, replace, remove } from '../framework/render.js';
 import PointItemView from '../view/point-item-view.js';
 import FormEditView from '../view/form-edit-view.js';
+import {isDatesEqual} from '../utils/common.js';
 import { UserAction, UpdateType, Mode } from '../consts.js';
 
 export default class PointPresenter {
@@ -45,7 +46,8 @@ export default class PointPresenter {
     }
 
     if (this.#mode === Mode.EDITING) {
-      replace(this.#formEditComponent, prevFormEditComponent);
+      replace(this.#pointItemComponent, prevFormEditComponent);
+      this.#mode = Mode.DEFAULT;
     }
 
     remove(prevFormEditComponent);
@@ -62,6 +64,42 @@ export default class PointPresenter {
       this.#formEditComponent.reset(this.#point);
       this.#replaceFormToPoint();
     }
+  };
+
+  setSaving = () => {
+    if (this.#mode === Mode.EDITING) {
+      this.#formEditComponent.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
+  };
+
+  setDeleting = () => {
+    if (this.#mode === Mode.EDITING) {
+      this.#formEditComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
+    }
+  };
+
+  setAborting = () => {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#pointItemComponent.shake();
+      document.addEventListener('keydown', this.#onEscKeyDownHandler);
+      return;
+    }
+
+    const resetFormState = () => {
+      this.#formEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#formEditComponent.shake(resetFormState);
   };
 
   #replacePointToForm = () => {
@@ -82,7 +120,6 @@ export default class PointPresenter {
       evt.preventDefault();
 
       this.#replaceFormToPoint();
-      //this.#formEditComponent.reset(this.#point);
       document.removeEventListener('keydown', this.#onEscKeyDownHandler);
     }
   };
@@ -108,9 +145,8 @@ export default class PointPresenter {
   };
 
   #handleFormEditSubmit = (update) => {
-    // Код для минора или патча
-
-    const isMinorUpdate = true;
+    const isMinorUpdate = !isDatesEqual(this.#point.dateFrom, update.dateFrom) ||
+    !isDatesEqual(this.#point.dateTo, update.dateTo);
 
     this.#changeData(
       UserAction.UPDATE_POINT,
@@ -118,7 +154,7 @@ export default class PointPresenter {
       update,
     );
 
-    this.#replaceFormToPoint();
+
     document.removeEventListener('keydown', this.#onEscKeyDownHandler);
   };
 }

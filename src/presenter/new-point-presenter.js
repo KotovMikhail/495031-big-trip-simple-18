@@ -1,5 +1,4 @@
 import { render, remove, RenderPosition } from '../framework/render.js';
-import { nanoid } from 'nanoid';
 import FormEditView from '../view/form-edit-view';
 import PointItemView from '../view/point-item-view.js';
 import { UserAction, UpdateType } from '../consts.js';
@@ -72,21 +71,21 @@ export default class NewPointPresenter {
     this.#formEditComponent.shake(resetFormState);
   };
 
+
   #handleFormCloseClick = () => {
     this.destroy();
     document.removeEventListener('keydown', this.#onEscKeyDownHandler);
   };
 
   #handleFormEditSubmit = (point) => {
-
-    if(point.destination === null) {
+    if(!point.destination) {
       return;
     }
 
     this.#changeData(
       UserAction.ADD_POINT,
       UpdateType.MINOR,
-      { id: nanoid(), ...point },
+      point,
     );
   };
 
