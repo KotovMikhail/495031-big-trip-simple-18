@@ -45,7 +45,7 @@ const NewPoint = {
 };
 
 const UrlData = {
-  AUTHORIZATION: 'Basic 2S2sfS44xclxsa2i',
+  AUTHORIZATION: 'Basic 2S24fS44xclxsa4i',
   END_POINT: 'https://18.ecmascript.pages.academy/big-trip',
 };
 

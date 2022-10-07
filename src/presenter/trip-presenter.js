@@ -152,6 +152,11 @@ export default class TripPresenter {
     this.#currentSortType = SortType.DAY;
     this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
     this.#newPointPresenter.init(callback);
+
+    if (this.#pointsModel.points.length === 0) {
+      remove(this.#listEmptyComponent);
+      render(this.#pointsListComponent, this.#tripEventsElement);
+    }
   };
 
   #renderPointItem = (point) => {

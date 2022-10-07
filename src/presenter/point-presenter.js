@@ -87,7 +87,7 @@ export default class PointPresenter {
   setAborting = () => {
     if (this.#mode === Mode.DEFAULT) {
       this.#pointItemComponent.shake();
-      document.addEventListener('keydown', this.#onEscKeyDownHandler);
+      document.addEventListener('keydown', this.#escKeyDownHandler);
       return;
     }
 
@@ -104,34 +104,34 @@ export default class PointPresenter {
 
   #replacePointToForm = () => {
     replace(this.#formEditComponent, this.#pointItemComponent);
-    document.addEventListener('keydown', this.#onEscKeyDownHandler);
+    document.addEventListener('keydown', this.#escKeyDownHandler);
     this.#changeMode();
     this.#mode = Mode.EDITING;
   };
 
   #replaceFormToPoint = () => {
     replace(this.#pointItemComponent, this.#formEditComponent);
-    document.removeEventListener('keydown', this.#onEscKeyDownHandler);
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
     this.#mode = Mode.DEFAULT;
   };
 
-  #onEscKeyDownHandler = (evt) => {
+  #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
 
       this.#replaceFormToPoint();
-      document.removeEventListener('keydown', this.#onEscKeyDownHandler);
+      document.removeEventListener('keydown', this.#escKeyDownHandler);
     }
   };
 
   #handleFormCloseClick = () => {
     this.#replaceFormToPoint();
-    document.removeEventListener('keydown', this.#onEscKeyDownHandler);
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
   #handlePointItemClick = () => {
     this.#replacePointToForm();
-    document.addEventListener('keydown', this.#onEscKeyDownHandler);
+    document.addEventListener('keydown', this.#escKeyDownHandler);
   };
 
   #handleFormDeleteClick = (point) => {
@@ -141,7 +141,7 @@ export default class PointPresenter {
       point,
     );
 
-    document.removeEventListener('keydown', this.#onEscKeyDownHandler);
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
   #handleFormEditSubmit = (update) => {
@@ -155,6 +155,6 @@ export default class PointPresenter {
     );
 
 
-    document.removeEventListener('keydown', this.#onEscKeyDownHandler);
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 }

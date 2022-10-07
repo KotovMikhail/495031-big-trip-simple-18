@@ -27,16 +27,17 @@ export default class NewPointPresenter {
       return;
     }
 
-    this.#pointItemComponent = new PointItemView();
+    this.#pointItemComponent = new PointItemView(this.#point, offers, destinations);
     this.#formEditComponent = new FormEditView(this.#point, offers, destinations);
 
     this.#formEditComponent.setFormEditSubmitHandler(this.#handleFormEditSubmit);
     this.#formEditComponent.setFormDeletePointHandler(this.#handleFormDeleteClick);
     this.#formEditComponent.setFormEditCloseHandler(this.#handleFormCloseClick);
 
+
     render(this.#formEditComponent, this.#pointsListComponent.element, RenderPosition.AFTERBEGIN);
 
-    document.addEventListener('keydown', this.#onEscKeyDownHandler);
+    document.addEventListener('keydown', this.#escKeyDownHandler);
   };
 
   destroy = () => {
@@ -49,7 +50,7 @@ export default class NewPointPresenter {
     remove(this.#formEditComponent);
     this.#formEditComponent = null;
 
-    document.removeEventListener('keydown', this.#onEscKeyDownHandler);
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
   setSaving = () => {
@@ -74,11 +75,11 @@ export default class NewPointPresenter {
 
   #handleFormCloseClick = () => {
     this.destroy();
-    document.removeEventListener('keydown', this.#onEscKeyDownHandler);
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
   #handleFormEditSubmit = (point) => {
-    if(!point.destination) {
+    if (!point.destination) {
       return;
     }
 
@@ -93,7 +94,7 @@ export default class NewPointPresenter {
     this.destroy();
   };
 
-  #onEscKeyDownHandler = (evt) => {
+  #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
       this.destroy();

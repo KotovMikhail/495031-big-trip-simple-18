@@ -1,5 +1,5 @@
 import AbstractStatefullView from '../framework/view/abstract-stateful-view.js';
-import { capitalizeFirstLetter, firstLetterToLowerCase, getDestinations, getPointByOfferType } from '../utils/common.js';
+import { capitalizeFirstLetter, makeFirstLetterToLowerCase, getDestinations, getPointByOfferType } from '../utils/common.js';
 import { humanizeDateToDateWithSpace } from '../utils/day.js';
 import { NewPoint } from '../consts';
 import he from 'he';
@@ -56,7 +56,7 @@ const createFormEditTemplate = (point, offers, destinations) => {
         <label class="event__label event__type-output" for="event-destination-1">
           ${type}
         </label>
-        <input class="event__input event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(name || 'Geneva' )}" list="destination-list-1">
+        <input class="event__input event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(name || 'Geneva')}" list="destination-list-1">
         <datalist id="destination-list-1">
           ${createFormCitiesListTemplate()}
         </datalist>
@@ -75,7 +75,7 @@ const createFormEditTemplate = (point, offers, destinations) => {
           <span class="visually-hidden">Price</span>
           €
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="160">
+        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${point.basePrice}">
       </div>
   
       <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''} >
@@ -96,11 +96,17 @@ const createFormEditTemplate = (point, offers, destinations) => {
 
     const createFormOfferItem = () => pointByOfferType.offers.map(({ id, title, price }) => `
             <div class="event__offer-selector">
-              <input class="event__offer-checkbox visually-hidden" id="event-offer-${firstLetterToLowerCase(title)}-${id}" type="checkbox" data-id="${id}" name="event-offer-${firstLetterToLowerCase(title)}" ${isOfferChecked(id)}>
-              <label class="event__offer-label" for="event-offer-${firstLetterToLowerCase(title)}-${id}">
-                <span class="event__offer-title">${title}</span>
-                +€&nbsp;
-                <span class="event__offer-price">${price}</span>
+              <input class="event__offer-checkbox visually-hidden"
+                  id="event-offer-${makeFirstLetterToLowerCase(title)}-${id}"
+                  type="checkbox" data-id="${id}"
+                  name="event-offer-${makeFirstLetterToLowerCase(title)}"
+                  ${isOfferChecked(id)}>
+
+                <label class="event__offer-label"
+                  for="event-offer-${makeFirstLetterToLowerCase(title)}-${id}">
+                  <span class="event__offer-title">${title}</span>
+                  +€&nbsp;
+                  <span class="event__offer-price">${price}</span>
               </label>
             </div>`).join('');
 
