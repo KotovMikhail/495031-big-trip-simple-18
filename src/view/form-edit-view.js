@@ -8,6 +8,7 @@ import 'flatpickr/dist/flatpickr.min.css';
 
 
 const createFormEditTemplate = (point, offers, destinations) => {
+  const {destination, basePrice} = point;
   const isDisabled = point.isDisabled;
   const isSaving = point.isSaving;
   const isDeleting = point.isDeleting;
@@ -71,11 +72,11 @@ const createFormEditTemplate = (point, offers, destinations) => {
       </div>
   
       <div class="event__field-group  event__field-group--price">
-        <label class="event__label" for="event-price-1">
+        <label class="event__label" for="event-price-${destination}">
           <span class="visually-hidden">Price</span>
           €
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${point.basePrice}">
+        <input class="event__input  event__input--price" id="event-price-${destination}" type="text" min="0" name="event-price" value="${basePrice}" ${isDisabled ? 'disabled' : ''}>
       </div>
   
       <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''} >
@@ -241,6 +242,7 @@ export default class FormEditView extends AbstractStatefullView {
     this.element.querySelector('.event__input--destination').addEventListener('input', this.#eventInputDestinationHandler);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#formEditCloseHandler);
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeletePointHandler);
+    this.element.querySelector('.event__input--price').addEventListener('change', this.#eventPriceChangeHandler);
   };
 
   #setFromDatepicker = () => {
@@ -327,6 +329,14 @@ export default class FormEditView extends AbstractStatefullView {
 
     this.updateElement({
       offers: selectedOffers,
+    });
+  };
+
+  #eventPriceChangeHandler = (evt) => {
+    evt.preventDefault();
+    this._setState({
+      ...this._state,
+      basePrice: Number(evt.target.value),
     });
   };
 
